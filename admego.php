@@ -26,5 +26,42 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 */
 
+defined('ABSPATH') or die ('You have no right to access this file');
 
-defined('ABSPATH') or die ("You have no right to access this file");
+class Admego{
+
+    function __construct()
+    {
+        add_action( "init", array($this,"custom_post_type") );
+    }
+   
+    function activate(){
+        //generate Custom Post Type -(done with custom_post_type method and fallback security again call method)
+        $this->custom_post_type();
+        //Flush rewrite rules
+        flush_rewrite_rules();
+    }
+
+    function deactivate(){
+        //Flush rewrite rules
+        flush_rewrite_rules();
+    }
+
+    function custom_post_type(){
+        register_post_type('book', array("public"=>true,"label"=>"Books"));
+    }
+
+
+}
+
+
+if(class_exists('Admego')){
+$admego = new Admego();
+}
+
+
+//Activation
+register_activation_hook( __FILE__, array($admego,'activate') );
+
+//Deactivation
+register_deactivation_hook(__FILE__,array($admego,'deactivate'));
