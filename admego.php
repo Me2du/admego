@@ -29,10 +29,32 @@ GNU General Public License for more details.
 defined('ABSPATH') or die ('You have no right to access this file');
 
 class Admego{
-
+    public $pluginUrl;
     function __construct()
     {
         add_action( "init", array($this,"custom_post_type") );
+        $this->pluginUrl = plugin_basename(__FILE__);
+    }
+    function register(){
+        add_action( "admin_enqueue_scripts",array($this,'enqueue') );
+        add_action( "wp_enqueue_scripts",array($this,'enqueue_front') );
+        add_action( 'admin_menu', array($this,'add_admin_page') );
+
+        add_filter( "plugin_action_links_$this->pluginUrl",array($this,'filter_index') );
+    }
+
+    function filter_index($links){
+        $settings_link = '<a href="admin.php?page=mithu_page">settings</a>';
+        array_push( $links, $settings_link );
+        return $links;
+    }
+
+    function add_admin_page(){
+        add_menu_page("mithu", "Mithu", "manage_options", "mithu_page", array($this,"admin_index"),"", 110);
+    }
+
+    function admin_index(){
+        echo "<h3>Mithu Khan</h3>";
     }
    
     function activate(){
@@ -51,12 +73,20 @@ class Admego{
         register_post_type('book', array("public"=>true,"label"=>"Books"));
     }
 
+    function enqueue(){
+        wp_enqueue_style('mystyle',plugins_url( "/assets/mystyle.css",__FILE__ ) );
+        wp_enqueue_script('myscript',plugins_url( "/assets/myscript.js",__FILE__ ) );
+    }
+    function enqueue_front(){
+        wp_enqueue_style('mystyle_front',plugins_url( "/assets/mystylefront.css",__FILE__ ) );
+    }
 
 }
 
 
 if(class_exists('Admego')){
 $admego = new Admego();
+$admego->register();
 }
 
 
